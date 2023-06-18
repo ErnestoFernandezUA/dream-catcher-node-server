@@ -48,8 +48,6 @@ export const getOne = async (req, res) => {
   try {
     const dreamId = req.params.id
 
-    console.log(dreamId);
-
     const updatedDream = await DreamModel.findOneAndUpdate(
       { _id: dreamId },
       { $inc: { viewsCount: 1 } },
@@ -75,8 +73,6 @@ export const getOne = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const dreamId = req.params.id
-
-    console.log(dreamId);
 
     const deletedDream = await DreamModel.findOneAndDelete(
       { _id: dreamId },

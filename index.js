@@ -7,12 +7,12 @@ import cors from 'cors';
 import { checkAuth } from './utils/index.js';
 import { loginValidation, registerValidation, postCreateValidation } from './validations/index.js';
 import { UserController, DreamController, UploadController } from './controllers/index.js';
-
+import { way } from './way.js';
 
 const LOCALHOST_PORT = 4444;
 
 mongoose
-  .connect('mongodb+srv://admin:adminadmin@cluster0.fjkk8p9.mongodb.net/dream?retryWrites=true&w=majority')
+  .connect(`mongodb+srv://${way}@cluster0.fjkk8p9.mongodb.net/dream?retryWrites=true&w=majority`)
   .then(() => console.log('DB ok'))
   .catch(() => console.log('DB error'));
 
