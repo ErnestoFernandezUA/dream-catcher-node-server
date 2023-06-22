@@ -38,13 +38,14 @@ export const register = async (req, res) => {
     const { passwordHash, ...userData } = user._doc;
     
     res.json({
-      ...userData,
-      token,
+      success: true,
+      message: 'user registered!',
     });
   } catch (error) {
     console.log('error:', error);
 
     res.status(500).json({
+      success: false,
       message: "can't register",
     });
   }
@@ -56,6 +57,7 @@ export const login = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
+        success: false,
         message: 'User is not exist',
       });
     }
@@ -64,6 +66,7 @@ export const login = async (req, res) => {
 
     if (!isValidPass) {
       return res.status(404).json({
+        success: false,
         message: 'User or password is incorrect',
       });
     }
@@ -78,16 +81,19 @@ export const login = async (req, res) => {
       }
     );
 
-    const { passwordHash, ...userData } = user._doc;
+    const { passwordHash, _id, ...userData } = user._doc;
     
     res.json({
+      success: true,
       ...userData,
       token,
+      userId: _id,
     });
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
+      success: false,
       message: "can't login",
     });
   }
@@ -99,6 +105,7 @@ export const getMe = async (req, res) => {
     
     if (!user) {
       return res.status(404).json({
+        success: false,
         message: 'User is not exist',
       }); 
     }
@@ -116,14 +123,53 @@ export const getMe = async (req, res) => {
     const { passwordHash, ...userData } = user._doc;
 
     res.json({
+      success: true,
       ...userData,
       token,
-      success: true,
     })
   } catch (error) {
     console.log(error);
 
     res.status(500),json({
+      success: false,
+      message: 'no access',
+    });
+  }
+};
+
+
+export const deleteMe = async (req, res) => {
+  try {
+    const user = await UserModel.findOneAndDelete({ _id: req.userId });
+    
+    console.log('user', user);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User is not exist',
+      }); 
+    }
+
+    const token = jwt.sign(
+      {
+      _id: user._id,
+      },
+      'secret123',
+      {
+        expiresIn: '30d',
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'User removed!'
+    })
+  } catch (error) {
+    console.log(error);
+
+    res.status(500),json({
+      success: false,
       message: 'no access',
     });
   }

@@ -1,1 +1,1 @@
-export const way = '';
+export const way = 'admin:adminadmin';

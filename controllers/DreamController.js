@@ -7,7 +7,10 @@ export const create = async (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json(errors.array());
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
     }
 
     const doc = new DreamModel({
@@ -25,6 +28,7 @@ export const create = async (req, res) => {
     console.log(error);
 
     res.status(500).json({
+      success: false,
       message: "Can't create dream",
     });
   }
@@ -34,11 +38,15 @@ export const getAll = async (req, res) => {
   try {
     const dreams = await DreamModel.find().populate('user').exec();
 
-    res.json(dreams);
+    res.json({
+      success: true,
+      dreams,
+    });
   } catch (error) {
     console.log(error);
 
     res.status(500).json({
+      success: false,
       message: "Can't get all dreams",
     });
   }
@@ -56,6 +64,7 @@ export const getOne = async (req, res) => {
 
     if (!updatedDream) {
       return res.status(404).json({
+        success: false,
         message: "Dream is not found",
       });
     }  
@@ -65,6 +74,7 @@ export const getOne = async (req, res) => {
     console.log(error);
 
     return res.status(500).json({
+      success: false,
       message: "Can't get a dream",
     });
   }
@@ -80,6 +90,7 @@ export const remove = async (req, res) => {
 
     if (!deletedDream) {
       return res.status(404).json({
+        success: false,
         message: "Dream is not found",
       });
     }  
@@ -91,6 +102,7 @@ export const remove = async (req, res) => {
     console.log(error);
 
     return res.status(500).json({
+      success: false,
       message: "Can't remove a dream",
     });
   }
@@ -101,7 +113,10 @@ export const update = async (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(400).json(errors.array());
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
     }
 
     const dreamId = req.params.id
@@ -120,6 +135,7 @@ export const update = async (req, res) => {
 
     if (!updatedDream) {
       return res.status(404).json({
+        success: false,
         message: "Dream is not found",
       });
     }  
@@ -129,6 +145,7 @@ export const update = async (req, res) => {
     console.log(error);
 
     return res.status(500).json({
+      success: false,
       message: "Can't update a dream",
     });
   }
