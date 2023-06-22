@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
 app.post('/auth/login', loginValidation, UserController.login);
 app.post('/auth/register', registerValidation, UserController.register);
 app.get('/auth/me', checkAuth, UserController.getMe);
-app.get('/auth/deleteMe', checkAuth, UserController.deleteMe);
+app.delete('/auth/deleteMe', checkAuth, UserController.deleteMe);
 
 app.post('/upload', checkAuth, upload.single('image'), UploadController.upload);
 
