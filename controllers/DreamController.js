@@ -3,8 +3,10 @@ import { validationResult } from 'express-validator';
 import DreamModel from '../models/Dream.js';
 
 export const create = async (req, res) => {
+  console.log('request:', req.body);
+
   try {
-    const errors = validationResult(req);
+    const errors = validationResult(req.body);
 
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -15,10 +17,12 @@ export const create = async (req, res) => {
 
     const doc = new DreamModel({
       title: req.body.title,
-      text: req.body.text,
+      body: req.body.body,
       imageUrl: req.body.imageUrl,
-      tags: req.body.tags,
+      // tags: req.body.tags,
       user: req.userId,
+      handler: req.body.handler,
+      status: req.body.status,
     });
 
     const dream = await doc.save();
@@ -125,9 +129,9 @@ export const update = async (req, res) => {
       { _id: dreamId },
       { 
         title: req.body.title,
-        text: req.body.text,
+        body: req.body.body,
         imageUrl: req.body.imageUrl,
-        tags: req.body.tags,
+        // tags: req.body.tags,
         user: req.userId,
       },
       { returnDocument: 'after' }
