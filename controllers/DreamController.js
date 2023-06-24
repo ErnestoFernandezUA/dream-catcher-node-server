@@ -87,7 +87,11 @@ export const getOne = async (req, res) => {
       });
     }  
 
-    return res.json(updatedDream);
+    return res.json({
+      success: true,
+      message: 'Darina molodec', 
+      dream: updatedDream,
+    });
   } catch (error) {
     console.log(error);
 
