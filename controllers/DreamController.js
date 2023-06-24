@@ -89,7 +89,7 @@ export const getOne = async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Darina molodec', 
+      message: 'Dream created!', 
       dream: updatedDream,
     });
   } catch (error) {
