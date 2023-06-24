@@ -38,13 +38,27 @@ export const create = async (req, res) => {
   }
 };
 
-export const getAll = async (req, res) => {
+export const getAll = async (_, res) => {
   try {
     const dreams = await DreamModel.find().populate('user').exec();
 
+    const correctDreams = [...dreams].map(d => {
+      const resD = {}
+
+      for (const key in d._doc) {
+        if (key === '_id') {
+          resD['id'] = d._doc['_id'];
+        } else {
+          resD[key] = d._doc[key];
+        }
+      }
+
+      return resD;
+    });
+
     res.json({
       success: true,
-      dreams,
+      dreams: correctDreams,
     });
   } catch (error) {
     console.log(error);
