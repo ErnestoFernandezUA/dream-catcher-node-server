@@ -27,7 +27,11 @@ export const create = async (req, res) => {
 
     const dream = await doc.save();
 
-    res.json(dream);
+    res.json({
+      success: true,
+      message: 'Dream created!',
+      dream,
+    });
   } catch (error) {
     console.log(error);
 
@@ -71,6 +75,7 @@ export const getAll = async (_, res) => {
 };
 
 export const getOne = async (req, res) => {
+  console.log('getOne');
   try {
     const dreamId = req.params.id
 
@@ -131,6 +136,8 @@ export const remove = async (req, res) => {
 };
 
 export const update = async (req, res) => {
+  console.log('update');
+
   try {
     const errors = validationResult(req);
 
@@ -143,26 +150,60 @@ export const update = async (req, res) => {
 
     const dreamId = req.params.id
 
-    const updatedDream = await DreamModel.updateOne(
+    const dream = await DreamModel.findOne(
+      { _id: dreamId }
+    ).exec();
+
+    if (!dream) {
+      return res.status(404).json({
+        success: false,
+        message: "Dream is not found",
+      });
+    }
+
+    const isOwner = dream.user === req.userId;
+    console.log('isOwner = ', isOwner);
+
+    if (isOwner) {
+      const updatedDream = await DreamModel.findOneAndUpdate(
+        { _id: dreamId },
+        { 
+          title: req.body.title,
+          body: req.body.body,
+          imageUrl: req.body.imageUrl,
+          // tags: req.body.tags,
+          user: req.body.user,
+        },
+        { returnDocument: 'after' }
+      ).exec();
+  
+      return res.json({
+        success: true,
+        message: 'Dream updated!',
+        dream: updatedDream,
+      });
+    }
+
+    const ifAvailableToTake = dream.handler === null;
+    console.log('ifAvailableToTake = ', ifAvailableToTake);
+    const updatedDream = await DreamModel.findOneAndUpdate(
       { _id: dreamId },
       { 
         title: req.body.title,
         body: req.body.body,
         imageUrl: req.body.imageUrl,
         // tags: req.body.tags,
-        user: req.userId,
+        handler: ifAvailableToTake ? req.userId : null,
+        status: ifAvailableToTake ? 'TAKEN' : 'POSTED',
       },
       { returnDocument: 'after' }
     ).exec();
 
-    if (!updatedDream) {
-      return res.status(404).json({
-        success: false,
-        message: "Dream is not found",
-      });
-    }  
-
-    return res.json(updatedDream);
+    return res.json({
+      success: true,
+      message: ifAvailableToTake ?  'Dream taken' :'Dream refused',
+      dream: updatedDream,
+    });
   } catch (error) {
     console.log(error);
 
