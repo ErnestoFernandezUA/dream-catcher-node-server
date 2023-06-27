@@ -217,7 +217,6 @@ export const update = async (req, res) => {
       });
     }
 
-
     const isRequestToRefuse = req.body.status === 'POSTED';
     console.log('isRequestToRefuse = ', isRequestToRefuse);
     const isUserInHandler = dream.handler === req.userId;
