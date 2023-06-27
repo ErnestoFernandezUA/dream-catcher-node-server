@@ -165,18 +165,22 @@ export const update = async (req, res) => {
     console.log('isOwner = ', isOwner);
 
     if (isOwner) {
-      const updatedDream = await DreamModel.findOneAndUpdate(
+      const updatedDream = await DreamModel.updateOne(
         { _id: dreamId },
         { 
+          user: dream.user,
+          handler: dream.handler,
+          status: dream.status,
           title: req.body.title,
           body: req.body.body,
           imageUrl: req.body.imageUrl,
-          // tags: req.body.tags,
-          user: req.body.user,
         },
         { returnDocument: 'after' }
       ).exec();
   
+
+      
+
       return res.json({
         success: true,
         message: 'Dream updated!',
@@ -186,23 +190,67 @@ export const update = async (req, res) => {
 
     const ifAvailableToTake = dream.handler === null;
     console.log('ifAvailableToTake = ', ifAvailableToTake);
-    const updatedDream = await DreamModel.findOneAndUpdate(
-      { _id: dreamId },
-      { 
-        title: req.body.title,
-        body: req.body.body,
-        imageUrl: req.body.imageUrl,
-        // tags: req.body.tags,
-        handler: ifAvailableToTake ? req.userId : null,
-        status: ifAvailableToTake ? 'TAKEN' : 'POSTED',
-      },
-      { returnDocument: 'after' }
-    ).exec();
+    const isRequestToTake = req.body.status === 'TAKEN';
+    console.log('isRequestToTake = ', isRequestToTake);
+
+    if (ifAvailableToTake && isRequestToTake) {
+      const updatedDream = await DreamModel.updateOne(
+        { _id: dreamId },
+        { 
+          title: dream.title,
+          body: dream.body,
+          imageUrl: dream.imageUrl,
+          user: dream.user,
+
+          handler: req.userId,
+          status: 'TAKEN',
+        },
+        { returnDocument: 'after' }
+      ).exec();
+  
+      console.log('updatedDream = ', updatedDream);
+
+      return res.json({
+        success: true,
+        message: 'Dream taken',
+        dream: updatedDream,
+      });
+    }
+
+
+    const isRequestToRefuse = req.body.status === 'POSTED';
+    console.log('isRequestToRefuse = ', isRequestToRefuse);
+    const isUserInHandler = dream.handler === req.userId;
+    console.log('isUserInHandler = ', isUserInHandler);
+
+    if (isRequestToRefuse && isUserInHandler) {
+      const updatedDream = await DreamModel.updateOne(
+        { _id: dreamId },
+        { 
+          title: dream.title,
+          body: dream.body,
+          imageUrl: dream.imageUrl,
+          user: dream.user,
+
+          handler: null,
+          status: 'POSTED',
+        },
+        { returnDocument: 'after' }
+      ).exec();
+  
+      return res.json({
+        success: true,
+        message: 'Dream refused',
+        dream: updatedDream,
+      });
+    }
+
+    console.log('updatedDream = ', updatedDream);
 
     return res.json({
-      success: true,
-      message: ifAvailableToTake ?  'Dream taken' :'Dream refused',
-      dream: updatedDream,
+      success: false,
+      message: 'Dream not changed',
+      dream,
     });
   } catch (error) {
     console.log(error);
